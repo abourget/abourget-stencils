@@ -1,0 +1,272 @@
+<Shapes xmlns="http://www.evolus.vn/Namespace/Pencil" xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns:svg="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://web.resource.org/cc/" 
+        id="SFL.MyStencil"
+        displayName="abourget Stencils"
+        description="Collection of web design elements"
+        author="Alexandre Bourget"
+        url="http://blog.abourget.net">
+    <Properties>
+        <PropertyGroup>
+            <Property name="parseAccessKey" displayName="Use _ as Accesskey Indicator" type="Bool">true</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Control Text">
+            <Property name="defaultTextFont" displayName="Default Text Font" type="Font">"Liberation Sans",Arial,sans-serif|normal|normal|13px|none</Property>
+        </PropertyGroup>
+        <PropertyGroup name="Window Frame">
+            <Property name="defaultFrameStyle" displayName="Default Window Style" type="Enum" p:enumValues="['nodoka|Gnome Nodoka', 'vista|Windows Vista (no Aero)', 'royale|Windows XP (Royale)', 'macosx|Mac OSX']">macosx</Property>
+            <Property name="defaultWindowTitleFont" displayName="Default Title Font" type="Font">"Liberation Sans",Arial,sans-serif|normal|normal|16px|none</Property>
+            <Property name="defaultWindowTitleColor" displayName="Default Title Text Color" type="Color">#ffffffff</Property>
+        </PropertyGroup>
+    </Properties>
+    <Script>
+        <![CDATA[
+            collection.MIN_COL_WIDTH = 5;
+            collection.getMaxColumns = function (rawText) {
+                var a = F.parseTextArray(rawText);
+
+                var c = 0;
+                for (var i in a) {
+                    c = Math.max(c, a[i].length);
+                }
+
+                return c;
+            };
+            collection.getMaxXForColumnHandle = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                if (i < cols - 2) {
+                    return properties["h" + (i + 1)].x - this.MIN_COL_WIDTH;
+                }
+
+                return properties["box"].w - this.MIN_COL_WIDTH;
+            };
+            collection.getMinXForColumnHandle = function (i, properties) {
+                if (i > 0) {
+                    return properties["h" + (i - 1)].x + this.MIN_COL_WIDTH;
+                }
+
+                return this.MIN_COL_WIDTH;
+            };
+            collection.isColumnHandleDisabled = function (i, properties) {
+                var cols = this.getMaxColumns(properties["content"].value);
+                return i >= cols - 1;
+            };
+        ]]>
+    </Script>
+    <Shape id="GoogNav" displayName="Google Nav" icon="Icons/tab.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">950,38</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="tabLabel" displayName="Tab Labels" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), 30), font: $textFont, align: new Alignment(0, 1), multi: false})">#Home|Products|Service</Property>
+                <Property name="bgColor" displayName="Background Color" type="Color">#EBEFF9ff</Property>
+                <Property name="linksColor" displayName="Links Color" type="Color">#0000ccff</Property>
+                <Property name="activeColor" displayName="Active Color" type="Color">#000000ff</Property>
+                <Property name="lineColor" displayName="Lines Color" type="Color">#6b90daff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Font>$textFont</Font>
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="line">
+                <Attr>
+                    <Arg>"x2"</Arg>
+                    <Arg>$box.w</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y1"</Arg>
+                    <Arg>$box.h - 0.5</Arg>
+                </Attr>
+                <Attr>
+                    <Arg>"y2"</Arg>
+                    <Arg>$box.h - 0.5</Arg>
+                </Attr>
+                <StrokeColor>$lineColor</StrokeColor>
+            </For>
+            <For ref="div">
+                <CustomStyle>
+                    <Arg>"width"</Arg>
+                    <Arg>$box.w + "px"</Arg>
+                </CustomStyle>
+                <CustomStyle>
+                    <Arg>"height"</Arg>
+                    <Arg>$box.h + "px"</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="navbar">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Font>$textFont</Font>
+            </For>
+            <For ref="bg">
+                <Bound>Bound.fromBox($box)</Bound>
+                <Fill>$bgColor</Fill>
+            </For>
+            <For ref="tabs">
+                <DomContent>
+                <![CDATA[
+                    //depends: $tabLabel
+
+                    var items = $tabLabel.value.split(/\|/);
+                    var specs = [];
+
+                    for (var i in items) {
+                        var label = items[i];
+                        var selected = false;
+
+                        if (label.match(/^#/)) {
+                            selected = true;
+                            label = label.substring(1);
+                        }
+
+                        var obj = {
+                            _name: "div",
+                            _text: label
+                        }
+                        if (selected) {
+                            obj.style = "padding: 10px 15px 10px 15px; border: " + $lineColor.toRGBString() + " solid 1px; border-bottom: none; background: white; font-weight: bold;";
+                        } else {
+                            obj.style = "padding: 10px 15px 10px 15px; border: none; text-decoration: underline; color: " + $linksColor.toRGBString();
+                        }
+
+                        specs.push(obj);
+                    }
+
+                    F.newDOMFragment(specs);
+                ]]>
+                </DomContent>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="getSnappingGuide">
+                <Impl>
+                    <![CDATA[
+                        var b = this.getBounding();
+                        var padding = 13;
+                        return [
+                            new SnappingData("FrameInnerPaddingRight", b.x + b.width - 2 - padding, "Right", true, this.id),
+                            new SnappingData("FrameInnerPaddingLeft", b.x + padding, "Left", true, this.id),
+                            new SnappingData("FrameInnerPaddingTop", b.y + 20 + padding, "Top", false, this.id),
+                            new SnappingData("FrameInnerPaddingBottom", b.y + b.height - 2 - padding, "Bottom", false, this.id)
+                        ]
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <rect id="bg" height="38" width="950" x="0" y="0" style="fill: #1946ff; fill-opacity: 0.13; stroke: none;" />
+            <line id="line" x1="0" y1="38.5" x2="950" y2="38.5" style="fill:none; stroke:#2864ef; stroke-width: 1px; stroke-linecap: butt; stroke-opacity: 0.9;" />
+            <foreignObject x="0" y="0" width="950" height="38" id="htmlObject">
+                <html:div id="div" xmlns:html="http://www.w3.org/1999/xhtml" style="-moz-box-sizing: border-box; overflow: hidden; position: relative;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <div id="navbar" flex="1" style="pointer-events: none; margin: 0px !important;">
+                      <div id="tabs" style="height: 38px;">
+                        <div class="tab" label="First tab" selected="true"/>
+                        <div class="tab" label="Second tab"/>
+                        <div class="tab" label="Third tab"/>
+                      </div>
+                    </div>
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+
+        </p:Content>
+    </Shape>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <Shape id="Button" displayName="Button" icon="Icons/button.png">
+        <Properties>
+            <PropertyGroup>
+                <Property name="box" displayName="Size" type="Dimension">80,25</Property>
+                <Property name="disabled" displayName="Disabled" type="Bool">false</Property>
+                <Property name="default" displayName="Default Button" type="Bool">false</Property>
+                <Property name="parseAccessKey" displayName="Use _ as Accesskey Indicator" type="Bool">true</Property>
+                <Property name="image" displayName="Image" type="ImageData">0,0, </Property>
+            </PropertyGroup>
+            <PropertyGroup name="Text">
+                <Property name="label" displayName="Label" type="PlainText"
+                    p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), Math.max($box.h, 25)), font: $textFont, align: new Alignment(1, 1), multi: false})">Button</Property>
+                <Property name="textColor" displayName="Color" type="Color">#000000ff</Property>
+                <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
+            </PropertyGroup>
+        </Properties>
+
+        <Behaviors>
+            <For ref="htmlObject">
+                <Bound>Bound.fromBox($box)</Bound>
+            </For>
+            <For ref="div">
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+            </For>
+            <For ref="xulControl">
+                <Label>
+                    <Arg>$label.value</Arg>
+                    <Arg>$parseAccessKey.value</Arg>
+                </Label>
+                <Attr>
+                    <Arg>"default"</Arg>
+                    <Arg>$default.value</Arg>
+                </Attr>
+
+                <Width>$box.w</Width>
+                <Height>$box.h</Height>
+                <Disabled>$disabled.value</Disabled>
+
+                <Font>$textFont</Font>
+                <Color>$disabled.value ? null : $textColor</Color>
+                <Attr>
+                    <Arg>"image"</Arg>
+                    <Arg>
+                        $image.w > 0 ? $image.data : null;
+                    </Arg>
+                </Attr>
+            </For>
+        </Behaviors>
+        <Actions>
+            <Action id="setImage" displayName="Select Button Image...">
+                <Impl>
+                    <![CDATA[
+                        var thiz = this;
+                        ImageData.prompt(function (imageData) {
+                            thiz.setProperty("image", imageData);
+                        }, "embedded");
+
+                    ]]>
+                </Impl>
+            </Action>
+            <Action id="removeImage" displayName="Remove Button Image">
+                <Impl>
+                    <![CDATA[
+                        this.setProperty("image", new ImageData(0, 0, ""));
+                    ]]>
+                </Impl>
+            </Action>
+        </Actions>
+        <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
+            <foreignObject x="0" y="0" width="200" height="150" id="htmlObject">
+                <html:div xmlns:html="http://www.w3.org/1999/xhtml" id="div" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; line-height: 1px !important; font-size: 0px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+                    <button id="xulControl"
+                            style="margin: 0px !important; min-height: 0px !important; min-width: 0px !important; -moz-box-sizing: border-box; box-sizing: border-box;" />
+                    <html:div style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"/>
+                </html:div>
+            </foreignObject>
+        </p:Content>
+    </Shape>
+</Shapes>
