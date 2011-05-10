@@ -60,10 +60,11 @@
             <PropertyGroup name="Text">
                 <Property name="tabLabel" displayName="Tab Labels" type="PlainText"
                     p:editInfo="({targetName: 'htmlObject', bound: new Bound(0, 0, Math.max($box.w, 80), 30), font: $textFont, align: new Alignment(0, 1), multi: false})">#Home|Products|Service</Property>
-                <Property name="bgColor" displayName="Background Color" type="Color">#EBEFF9ff</Property>
-                <Property name="linksColor" displayName="Links Color" type="Color">#0000ccff</Property>
-                <Property name="activeColor" displayName="Active Color" type="Color">#000000ff</Property>
-                <Property name="lineColor" displayName="Lines Color" type="Color">#6b90daff</Property>
+                <Property name="bgColor" displayName="Top Background" type="Color">#EBEFF9ff</Property>
+                <Property name="subBgColor" displayName="Active Box Background" type="Color">#FFFFFFff</Property>
+                <Property name="linksColor" displayName="Links Text" type="Color">#0000ccff</Property>
+                <Property name="activeColor" displayName="Active Text" type="Color">#000000ff</Property>
+                <Property name="lineColor" displayName="Tabs Line" type="Color">#6b90daff</Property>
                 <Property name="textFont" displayName="Font" type="Font"><E>$$defaultTextFont</E></Property>
             </PropertyGroup>
         </Properties>
@@ -95,8 +96,15 @@
                 </CustomStyle>
                 <CustomStyle>
                     <Arg>"height"</Arg>
-                    <Arg>$box.h + "px"</Arg>
+                    <Arg>($box.h - 3) + "px"</Arg>
                 </CustomStyle>
+                <CustomStyle>
+                    <Arg>"margin-top"</Arg>
+                    <Arg>"3px"</Arg>
+                </CustomStyle>
+            </For>
+            <For ref="tabs">
+                <Height>$box.h - 3</Height>
             </For>
             <For ref="navbar">
                 <Width>$box.w</Width>
@@ -114,6 +122,8 @@
 
                     var items = $tabLabel.value.split(/\|/);
                     var specs = [];
+                    specs.push({_name: "div", _text: "   ",
+                                style: "padding: 7px;"});
 
                     for (var i in items) {
                         var label = items[i];
@@ -129,9 +139,9 @@
                             _text: label
                         }
                         if (selected) {
-                            obj.style = "padding: 10px 15px 10px 15px; border: " + $lineColor.toRGBString() + " solid 1px; border-bottom: none; background: white; font-weight: bold;";
+                            obj.style = "padding: 10px 15px 10px 15px; border: " + $lineColor.toRGBString() + " solid 1px; border-bottom: none; background-color: " + ($subBgColor ? $subBgColor.toRGBString() : 'white') + "; font-weight: bold; color: " + $activeColor.toRGBString();
                         } else {
-                            obj.style = "padding: 10px 15px 10px 15px; border: none; text-decoration: underline; color: " + $linksColor.toRGBString();
+                            obj.style = "padding: 10px 15px 10px 15px; border: none; text-decoration: underline !important; color: " + $linksColor.toRGBString();
                         }
 
                         specs.push(obj);
@@ -161,10 +171,10 @@
         <p:Content xmlns:p="http://www.evolus.vn/Namespace/Pencil" xmlns="http://www.w3.org/2000/svg">
             <rect id="bg" height="38" width="950" x="0" y="0" style="fill: #1946ff; fill-opacity: 0.13; stroke: none;" />
             <line id="line" x1="0" y1="38.5" x2="950" y2="38.5" style="fill:none; stroke:#2864ef; stroke-width: 1px; stroke-linecap: butt; stroke-opacity: 0.9;" />
-            <foreignObject x="0" y="0" width="950" height="38" id="htmlObject">
-                <html:div id="div" xmlns:html="http://www.w3.org/1999/xhtml" style="-moz-box-sizing: border-box; overflow: hidden; position: relative;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+            <foreignObject x="0" y="0" width="950" height="34" id="htmlObject">
+                <html:div id="div" xmlns:html="http://www.w3.org/1999/xhtml" style="-moz-box-sizing: border-box; overflow: hidden; position: relative; margin-top: 3px;" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
                     <div id="navbar" flex="1" style="pointer-events: none; margin: 0px !important;">
-                      <div id="tabs" style="height: 38px;">
+                      <div id="tabs" style="height: 34px;">
                         <div class="tab" label="First tab" selected="true"/>
                         <div class="tab" label="Second tab"/>
                         <div class="tab" label="Third tab"/>
